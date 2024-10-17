@@ -32,3 +32,41 @@ for d in days:
     activity_collector()
 
 print(service_data)
+
+# Testing lists that work with the browser elements of the timesheet
+data_0 = [['10/15/2024', ['8'], ['Testing']], ['10/15/2024', ['8'], ['Groovin']]]
+data = ['10/15/2024', '5', 'Testing', '10/15/2024', '8', 'Moovin', '10/16/2024', '7.5', 'Groovin', '10/17/2024', '9', 'Approvin']
+days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday']
+
+#counters
+input_counter = 74      #input id's begin at 74, up to 87 for saturday activity
+ts_date_counter = 0     #sunday = 0th index of the week
+
+# this will eventually use service_data list
+def ha_filler():
+    hours = browser.find_element(By.ID, 'input_' + str(input_counter))
+    hours.send_keys(data[1+ts_date_counter])
+    input_counter = input_counter + 1
+
+    activity = browser.find_element(By.ID, 'input_' + str(input_counter))
+    activity.send_keys(data[2+ts_date_counter])
+    input_counter = input_counter + 1
+
+    ts_date_counter = ts_date_counter + 3
+
+# using print to test what was being sent when
+# the browser elements increment in the hours portion, unlike in the contact info section
+#    print('hours = input_' + str(input_counter))
+#    print(data[1 + ts_date_counter])
+#    input_counter = input_counter + 1
+#    print('activity = input_' + str(input_counter))
+#    print(data[2 + ts_date_counter])
+#    input_counter = input_counter + 1
+#    ts_date_counter = ts_date_counter + 3
+
+# loop to execute the hours 
+for d in days:
+    ha_filler()
+    
+
+print('date counter: ' + str(ts_date_counter))
