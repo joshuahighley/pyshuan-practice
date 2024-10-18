@@ -7,14 +7,22 @@ this_week = today.strftime('%U')
 this_sun = (today - dt.timedelta(weekday_num)).strftime('%m/%d/%Y')
 week_start = "week #" + this_week +  ", beginning Sunday " + this_sun
 
-#print("Is this timesheet for " + week_start + "? Enter 'y' if yes, otherwise enter the start date of the week to submit.")
-#week_input = input()
-week_input = 40
+print("Is this timesheet for " + week_start + "? Enter 'y' if yes, otherwise enter the start date of the week to submit.")
+week_input = input()
 
-days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-day_count = 0
-day_counter = (today + dt.timedelta(days = day_count)).strftime('%m/%d/%Y')
-service_data = []
+if week_input == 'y':
+    that_sun = this_sun
+else:
+    days_between = (7*(int(this_week) - int(week_input) + 1)) + weekday_num
+    that_sun = (today - dt.timedelta(days = days_between)).strftime('%m/%d/%Y')
+
+
+# Timesheet data collection
+print("Timesheet for: " + that_sun)
+
+#days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+days = ['Sunday', 'Monday']
+
 
 def activity_collector():
     print('Hours served on ' + d + '?')
