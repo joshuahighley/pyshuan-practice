@@ -78,3 +78,8 @@ for d in days:
     
 
 print('date counter: ' + str(ts_date_counter))
+
+# Write input data (my hours worked) to a CSV
+service_data_df = pd.DataFrame(service_data_m)
+ts_csv = pd.read_csv('highleyHours.csv')
+pd.DataFrame.to_csv(service_data_df, 'highleyHours.csv', index=False, header=False, mode='a')
