@@ -1,4 +1,4 @@
-function sendTodoReportsFresh() {
+function sendTodoReports() {
 
   // Get the active spreadsheet and sheet
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -31,13 +31,14 @@ function sendTodoReportsFresh() {
     var date = new Date().toLocaleString('en-us', { weekday:"long", month:"short", day:"numeric"});
     var time = new Date().toLocaleString('en-us', { hour:"numeric", minute:"numeric"});
     var subject = "Open To-Dos for " + date;
-    let header = '<p>' + personName + '<br><br>These are your open to-do\'s as of today at ' + time + ':</p>';
-    let noTodos = personName + ',<br><br>You have no open to-do\'s as of ' + time + '.';
+    let header = '<p>' + personName + ',<br><br>These are your open to-do\'s on the Nexus as of today at ' + time + ':</p>';
+    let noTodos = personName + ',<br><br>You have no open to-do\'s on Nexus as of ' + time + '.';
+    let warning = '<br><br><br><i>This is the first test run of the report generator script. Please let me know if you find discrepancies between this report and the Nexus. Thanks for your patience.</i>'
 
     if (todos == '') {
-      GmailApp.sendEmail(emailAddress, subject, '', {htmlBody: noTodos});
+      GmailApp.sendEmail(emailAddress, subject, '', {htmlBody: noTodos + warning});
     } else {
-      GmailApp.sendEmail(emailAddress, subject, '', {htmlBody: header + todos});
+      GmailApp.sendEmail(emailAddress, subject, '', {htmlBody: header + todos + warning});
     };
   };
 
@@ -56,4 +57,4 @@ function sendTodoReportsFresh() {
     emailWriter(person.email, name, todosCombo.join(''))
   });
 
-} //end of line - FRESH START
+}
