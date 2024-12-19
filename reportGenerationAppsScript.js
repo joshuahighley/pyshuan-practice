@@ -1,14 +1,4 @@
-// Adds the script to a new dropdown menu in Sheets:
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('Report Generation')
-    .addItem('Send To-Do Reports','sendTodoReports')
-    .addToUi();
-}
-
-// Staff email Map ommitted
-
-function sendTodoReports() {
+function sendTodoReportsFresh() {
 
   // Get the active spreadsheet and sheet
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -23,6 +13,7 @@ function sendTodoReports() {
 
   var todosCombined = []
 
+  // Combine HHN + Team Members + Todo Text into one string
   for(let i = todos.length-1; i >=0; i--) {
     
     var todoCombination = ['']
@@ -37,7 +28,6 @@ function sendTodoReports() {
   };
 
   
-
   // Creates an email with the given email address, team member's name, and todo list
   function emailWriter(emailAddress, personName, todos) {
     var date = new Date().toLocaleString('en-us', { weekday:"long", month:"short", day:"numeric"});
@@ -49,21 +39,52 @@ function sendTodoReports() {
     GmailApp.sendEmail(emailAddress, subject, '', body);
   };
 
-  
+
+
+
   // Checks each todo for a person's name, groups into their email body, sends emails with emailWriter function
   teamInfo.forEach((person, name) => {
+    
+    // Create arrays for this person's items
+    var todosByPerson = []
+    var hhnByPerson = []
+    var teamByPerson = []
+    console.log(name.toString())
+    // Add items with matching Name from overall list to the person's list
+    for(let i = todos.length-1; i >= 0; i--) {
+      //console.log(todos[i].includes(name))
+      if (todos[i].toString().includes(name)) {
+        if (todos[i] == todo[i-1]) {
+          todosByPerson.push(todos[i-1].join('<br>',todos[i]))
+        } else {
+          hhnByPerson.push(todoHHNs[i])
+          teamByPerson.push(todoTeams[i])
+          todosByPerson.push(todos[i])
+        };
+        console.log(todoHHNs)
+      }
+    }
+    console.log(todosByPerson)
+    var todosCombo = []
 
-    var todosByName = []
+    for(let i = todos.length-1; i >= 0; i--){
+      let a = hhnByPerson[i]
+      let b = teamByPerson[i]
+      let c = todosByPerson[i]
+      let todoBoo = []
+      todoBoo += '<p><b>HH:' + a +'</b><br>'+ b +'<br>'+ c + '</p>'
+      todosCombo.push(todoBoo)
+    };
 
-    todosCombined.forEach(todo => {
+    todosCombo.forEach(todo => {
       if (todo.includes(name)) {
-        todosByName.push(todo)
+        //todosByName.push(todo)
       }
     });
 
     // Uses the function from above to create and send emails with the to-do groups and team info
-    emailWriter(person.email, name, todosByName.join(''))
+    //emailWriter(person.email, name, todosCombo.join(''))
     
   });
 
-} //end of line - FRESH START
+}
