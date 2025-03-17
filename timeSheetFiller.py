@@ -5,33 +5,43 @@ import datetime as dt
 import pandas as pd
 import pyinputplus as pyip
 
+file = "timeSheetFiller\highleyHours.csv"
+
+ts_csv = pd.read_csv(file)
+
 
 # date at time of running script
 today = dt.datetime.now()
 weekday_num = int(today.strftime('%w'))
 this_week = str(int(today.strftime('%U')) + 1)
 this_sun = (today - dt.timedelta(weekday_num))  #.strftime('%m/%d/%Y')
-week_message = "week #" + this_week +  ", beginning Sunday " + this_sun.strftime('%m/%d/%Y')
 
+existing_data = pd.read_csv('timeSheetFiller/highleyHours.csv', header=0, date_format='%m/%d/%Y')
+
+# Get date of input data from CSV
+last_record = pd.Timestamp(existing_data['DATE'].max()).date()
+new_dt = last_record + pd.DateOffset(weeks=1)
+new_date = dt.datetime.strftime(new_dt, '%m/%d/%Y')
 
 # COLLECTING USER TIMESHEET DATA
 # user input of week #
-print("Is this timesheet for " + week_message + "? Enter 'y' if yes, otherwise enter the start date of the week to submit.")
-week_input = input()
+print(f"Is this timesheet for {str(new_date)}? The last entry was for the week beginning {last_record}. \nEnter 'y' if yes, otherwise enter the start date of the week to submit.")
+date_input = str(input()).lower()
 
-if week_input == 'y':
-    ts_week = this_sun
+if date_input == 'y' or date_input == '':
+    ts_dt = new_dt
+    ts_str = new_date
 else:
-    days_between = (7*(int(this_week) - int(week_input))) + weekday_num
-    ts_week = (today - dt.timedelta(days = days_between))   #.strftime('%m/%d/%Y')
+    ts_dt = pd.Timestamp(ts_input=date_input).date()
+    ts_str = ts_dt.strftime('%m/%d/%Y')
 
-print("Timesheet for: " + ts_week.strftime('%m/%d/%Y'))
+print("Timesheet for the week of " + ts_str)
 
 
 days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 #days = ['Sunday', 'Monday'] #this one's for testing so I don't have to do 7 days
 day_count = 0
-day_counter = (ts_week + dt.timedelta(days = int(day_count))).strftime('%m/%d/%Y')
+day_counter = (ts_dt + dt.timedelta(days = int(day_count))).strftime('%m/%d/%Y')
 service_data = []
 service_data_m = []
 
@@ -41,22 +51,28 @@ service_data_m = []
 def activity_collector():
     global day_count
     global day_counter
+    new_hours = 0
+    new_activities = ''
 
-    print(d + ' hours?')
-    new_hours = pyip.inputNum(blank=True)
-    if new_hours == '':
+    print(f'\n{d} hours?')
+    hours_input = pyip.inputNum(blank=True)
+    if hours_input == '' or hours_input == 0:
         new_hours = 0
-    
+        new_activities = ''
+        print('No hours recorded, skipping activities\n')
+    else:                               # Should just skip activities input if hours == 0 (if it doesn't work just take it out of Else)
+        new_hours = hours_input
+        print('Activities? (Press Enter for AmeriCorps projects, or leave blank to skip)')
+        activity_input = str(input()).lower()
+        if activity_input == '':
+            base_response = 'AmeriCorps projects'
+            print(base_response)
+            new_activities = base_response
+        else:
+            new_activities = activity_input
+            print('Activities recorded: ' + new_activities)
 
-    elif new_hours == 0:
-        print('No hours recorded')
-
-    print('Activities?')
-    new_activities = input()
-    if new_activities == '':
-        new_activities = 'None'
-    
-    date_counter = (ts_week + dt.timedelta(days = int(day_count))).strftime('%m/%d/%Y')
+    date_counter = (ts_dt + dt.timedelta(days = int(day_count))).strftime('%m/%d/%Y')
     print(date_counter)
     day_count = day_count + 1
 
@@ -99,7 +115,7 @@ sup_email.send_keys('jtaylor@caprw.org')
 #my_group = browser.find_element(By.ID, '')
 
 week_field = browser.find_element(By.ID, 'lite_mode_46')
-week_field.send_keys(ts_week.strftime('%m/%d/%Y'))
+week_field.send_keys(ts_dt.strftime('%m/%d/%Y'))
 
 
 # incrementally fill timesheet from the created list 'service_data'
@@ -135,8 +151,8 @@ print(service_data_m)
 # get & write to the csv file
 service_data_df = pd.DataFrame(service_data_m)
 
-ts_csv = pd.read_csv('highleyHours.csv')
-pd.DataFrame.to_csv(service_data_df, 'highleyHours.csv', index=False, header=False, mode='a')
+
+pd.DataFrame.to_csv(service_data_df, file, index=False, header=False, mode='a')
 
 
 #review entered data before allowing filler to continue
@@ -148,14 +164,14 @@ while r != 'y':
         break
 
 
-print('This browser will close in 15 seconds...')
+print('This browser will close in 3 seconds...')
 print('(Just hit submit, still testing the automated submission process.)')
 
-time.sleep(15)
+time.sleep(1)
 
 
 print("Writing data to 'highleyHours.csv'...")
 print('Done')
-print("Timesheet for: " + ts_week.strftime('%m/%d/%Y') + "submitted.")
+print("Timesheet for: " + ts_dt.strftime('%m/%d/%Y') + " submitted.")
 #
 ## END CSV TEST
